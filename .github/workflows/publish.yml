@@ -359,17 +359,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # macOS x64 builds on Apple Silicon and Windows arm64 on x64; Electron packaging compiles nothing.
+        # OPENCODE_CLI_TARGET, not the host, picks the bundled CLI and node-pty. afterPack rejects a CLI built for the
+        # wrong CPU on every platform, and a wrong node-pty only on Windows.
         settings:
-          - host: macos-26-intel
+          - host: macos-26
             target: x86_64-apple-darwin
             platform_flag: --mac --x64
-            bun_install_flags: --os=darwin --cpu=x64
+            # arm64 build tools for the host, x64 node-pty for the app.
+            bun_install_flags: --os=darwin --cpu=*
           - host: macos-26
             target: aarch64-apple-darwin
             platform_flag: --mac --arm64
             bun_install_flags: --os=darwin --cpu=arm64
-          # github-hosted: blacksmith lacks ARM64 MSVC cross-compilation toolchain
-          - host: "windows-2025"
+          - host: "blacksmith-4vcpu-windows-2025"
             target: aarch64-pc-windows-msvc
             platform_flag: --win --arm64
             bun_install_flags: --cpu=*
